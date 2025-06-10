@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 st.title("글로벌 시총 TOP 10 기업의 최근 3년 주가 변화")
 
+# 글로벌 시총 상위 10개 기업 티커 (예시)
 companies = {
     "Apple": "AAPL",
     "Microsoft": "MSFT",
@@ -18,6 +19,7 @@ companies = {
     "Tesla": "TSLA"
 }
 
+# 최근 3년 기간 설정
 end_date = datetime.today()
 start_date = end_date - timedelta(days=3*365)
 
@@ -35,7 +37,7 @@ for name, ticker in companies.items():
         st.warning(f"{name}의 데이터를 가져오지 못했습니다: {e}")
 
 fig.update_layout(
-    title="글로벌 시가총액 상위 10개 기업의 주가 변화 (최근 3년)",
+    title="글로벌 시가총액 TOP 10 기업의 주가 변화 (최근 3년)",
     xaxis_title="날짜",
     yaxis_title="주가 (USD)",
     template="plotly_dark",
