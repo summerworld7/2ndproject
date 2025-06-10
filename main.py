@@ -49,4 +49,35 @@ places = {
         "description": "현지인들이 사랑하는 파이와 커피가 있는 작은 베이커리 카페. 시드니 전역에 지점이 있지만, 서리힐즈 본점이 가장 유명합니다.",
         "category": "브런치 카페"
     },
-    "Single O Sur
+    "Single O Surry Hills": {
+        "lat": -33.8820,
+        "lon": 151.2124,
+        "image": "https://media.timeout.com/images/105240190/750/422/image.jpg",
+        "description": "스페셜티 커피와 창의적인 브런치 메뉴로 유명한 서리힐즈의 인기 카페. 커피 애호가에게 강추!",
+        "category": "브런치 카페"
+    },
+}
+
+# 드롭다운 메뉴
+selected_place = st.selectbox("📍 장소를 선택하세요", list(places.keys()))
+
+# 선택된 장소 정보
+spot = places[selected_place]
+
+# 지도 생성
+m = folium.Map(location=[spot["lat"], spot["lon"]], zoom_start=15)
+folium.Marker(
+    location=[spot["lat"], spot["lon"]],
+    popup=f"<b>{selected_place}</b><br>{spot['description']}",
+    tooltip=selected_place,
+    icon=folium.Icon(color="green" if spot["category"] == "브런치 카페" else "blue", icon="info-sign"),
+).add_to(m)
+
+# 지도 출력
+st.subheader("🗺️ 위치 확인")
+st_folium(m, width=700, height=500)
+
+# 상세 정보 출력
+st.subheader(f"📌 {selected_place}")
+st.image(spot["image"], use_column_width=True)
+st.write(spot["description"])
