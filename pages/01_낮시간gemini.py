@@ -27,23 +27,35 @@ if start_date > end_date:
     st.error("⚠️ 시작 날짜는 종료 날짜보다 빠르거나 같아야 합니다.")
 else:
     # 선택된 기간의 낮 길이 계산
-    dates = pd.date_range(start_date, end_date)
+    dates = []
     day_lengths = []
 
-    for date in dates:
-        s = sun(city.observer, date=date)
-        # Ensure both sunrise and sunset exist and are valid for the calculation
+    current_date = start_date
+    while current_date <= end_date:
+        s = sun(city.observer, date=current_date)
+        
+        # 일출/일몰 시간이 모두 유효한지 확인
         if s["sunrise"] and s["sunset"]:
-            # Calculate the absolute difference to guarantee a positive duration
-            daylight_seconds = abs((s["sunset"] - s["sunrise"]).total_seconds())
-            daylight_hours = daylight_seconds / 3600  # Convert to hours
+            # sunset이 sunrise보다 늦으면 양수, 빠르면 음수가 나올 수 있습니다.
+            # 서울에서는 6월이 가장 길고 12월이 가장 짧아야 하므로
+            # 이 차이 값 자체가 올바른 낮 길이를 나타내야 합니다.
+            # abs()를 제거하여 원래의 차이 값을 확인합니다.
+            daylight_seconds = (s["sunset"] - s["sunrise"]).total_seconds()
+            daylight_hours = daylight_seconds / 3600  # 시간 단위로 변환
+            
+            dates.append(current_date)
             day_lengths.append(daylight_hours)
         else:
-            # Handle cases where sunrise or sunset might not occur (e.g., polar regions)
-            day_lengths.append(None)
+            # 극지방처럼 일출/일몰이 없는 경우를 대비하지만, 서울에는 해당 없음.
+            # 이 경우 데이터를 추가하지 않아 자동으로 NaN으로 처리됩니다.
+            pass
+        
+        current_date += datetime.timedelta(days=1)
+
 
     df = pd.DataFrame({"Date": dates, "Daylight Hours": day_lengths})
-    df.dropna(inplace=True) # Remove rows where daylight hours couldn't be calculated
+    # 필요하다면 df.dropna(inplace=True)를 추가하여 None 값을 제거할 수 있습니다.
+    # 하지만 위 루프에서 None을 추가하지 않으므로 필요 없을 것입니다.
 
     # 그래프 출력
     if not df.empty:
@@ -53,7 +65,7 @@ else:
                       title=title_text,
                       labels={"Daylight Hours": "낮 길이 (시간)", "Date": "날짜"},
                       hover_data={"Date": "|%Y년 %m월 %d일"}) # Customize hover tooltip date format
-        fig.update_traces(mode='lines+markers', marker_size=3) # Add lines and small markers
+        fig.update_traces(mode='lines') # 선만 표시, 마커는 낮 길이 변화 추세에 따라 너무 많을 수 있음
         fig.update_layout(xaxis_title="날짜", yaxis_title="낮 길이 (시간)",
                           hovermode="x unified") # Unify hover tooltips along the x-axis
         st.plotly_chart(fig, use_container_width=True)
@@ -61,4 +73,4 @@ else:
         st.warning("선택된 기간 동안 낮 길이 데이터를 계산할 수 없습니다. 날짜를 다시 확인해주세요.")
 
 st.markdown("---")
-st.info("이 앱은 'astral' 라이브러리를 사용하여 천문학적인 낮 길이를 계산하며, **항상 양수 값으로 표시**됩니다.")
+st.info("이 앱은 'astral' 라이브러리를 사용하여 천문학적인 낮 길이를 계산합니다. 낮 길이는 6월 (하지 부근)에 가장 길고 12월 (동지 부근)에 가장 짧게 나타납니다.")
