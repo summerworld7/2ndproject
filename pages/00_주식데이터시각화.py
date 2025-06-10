@@ -40,4 +40,19 @@ for name, ticker in companies.items():
     except Exception as e:
         st.warning(f"{name}의 데이터를 가져오지 못했습니다: {e}")
 
-fig
+fig.update_layout(
+    title="글로벌 시가총액 TOP 10 기업의 주가 변화 (최근 3년)",
+    xaxis_title="날짜",
+    yaxis_title="주가 (USD)",
+    template="plotly_dark",
+    height=600
+)
+
+# ✅ x축 설정
+fig.update_xaxes(
+    tickformat="%Y-%m",
+    dtick="M3",  # 3개월 단위
+    tickangle=45
+)
+
+st.plotly_chart(fig, use_container_width=True)
