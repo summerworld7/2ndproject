@@ -27,24 +27,17 @@ fig = go.Figure()
 
 for name, ticker in companies.items():
     try:
-        data = yf.download(ticker, start=start_date, end=end_date)
+        data = yf.download(ticker, start=start_date, end=end_date, interval="1d")
         if not data.empty:
+            data = data.dropna()  # 결측치 제거
             price_col = "Adj Close" if "Adj Close" in data.columns else "Close"
             fig.add_trace(go.Scatter(
                 x=data.index,
                 y=data[price_col],
-                mode="lines",  # 여기!
+                mode="lines",
                 name=name
             ))
     except Exception as e:
         st.warning(f"{name}의 데이터를 가져오지 못했습니다: {e}")
 
-fig.update_layout(
-    title="글로벌 시가총액 TOP 10 기업의 주가 변화 (최근 3년)",
-    xaxis_title="날짜",
-    yaxis_title="주가 (USD)",
-    template="plotly_dark",
-    height=600
-)
-
-st.plotly_chart(fig, use_container_width=True)
+fig
