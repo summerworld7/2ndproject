@@ -3,4 +3,3 @@ streamlit-folium
 yfinance
 plotly
 pandas
-plotly.graph_objects
