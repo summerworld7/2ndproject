@@ -3,9 +3,8 @@ import yfinance as yf
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 
-st.title("글로벌 시총 TOP 10 기업의 최근 3년 주가 변화")
+st.title("글로벌 시가총액 TOP 10 기업의 최근 3년 주가 변화")
 
-# 글로벌 시총 상위 10개 기업 티커 (예시)
 companies = {
     "Apple": "AAPL",
     "Microsoft": "MSFT",
@@ -19,7 +18,6 @@ companies = {
     "Tesla": "TSLA"
 }
 
-# 최근 3년 기간 설정
 end_date = datetime.today()
 start_date = end_date - timedelta(days=3*365)
 
@@ -32,7 +30,12 @@ for name, ticker in companies.items():
         data = yf.download(ticker, start=start_date, end=end_date)
         if not data.empty:
             price_col = "Adj Close" if "Adj Close" in data.columns else "Close"
-            fig.add_trace(go.Scatter(x=data.index, y=data[price_col], name=name))
+            fig.add_trace(go.Scatter(
+                x=data.index,
+                y=data[price_col],
+                mode="lines",  # 여기!
+                name=name
+            ))
     except Exception as e:
         st.warning(f"{name}의 데이터를 가져오지 못했습니다: {e}")
 
@@ -45,3 +48,4 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig, use_container_width=True)
+
